@@ -12,45 +12,39 @@
   <div class="container d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow-lg p-4" style="width: 28rem; border-radius: 1rem;">
       <h3 class="text-center mb-4">Registro de Usuario</h3>
-      <form>
-        <!-- Nombre -->
+      <form action="register.php" method="POST">        
         <div class="mb-3">
           <label for="nombre" class="form-label">Nombre Completo</label>
-          <input type="text" class="form-control" id="nombre" placeholder="Ejemplo: Juan Pérez" required>
+          <input type="text" class="form-control" name="nombre" placeholder="Ejemplo: Juan Pérez" required>
         </div>
 
-        <!-- Usuario -->
         <div class="mb-3">
           <label for="usuario" class="form-label">Nombre de Usuario</label>
-          <input type="text" class="form-control" id="usuario" placeholder="Ejemplo: juan123" required>
+          <input type="text" class="form-control" name="usuario" placeholder="Ejemplo: juan123" required>
         </div>
 
-        <!-- Correo -->
         <div class="mb-3">
           <label for="correo" class="form-label">Correo Electrónico</label>
-          <input type="email" class="form-control" id="correo" placeholder="ejemplo@correo.com" required>
+          <input type="email" class="form-control" name="correo" placeholder="ejemplo@correo.com" required>
         </div>
 
-        <!-- Contraseña -->
         <div class="mb-3">
           <label for="password" class="form-label">Contraseña</label>
-          <input type="password" class="form-control" id="password" placeholder="********" required>
+          <input type="password" class="form-control" name="password" placeholder="********" required>
         </div>
 
-        <!-- Edad -->
         <div class="mb-3">
           <label for="edad" class="form-label">Edad</label>
-          <input type="number" class="form-control" id="edad" min="1" max="120" required>
+          <input type="number" class="form-control" name="edad" min="1" max="120" required>
         </div>
 
-        <!-- Botón -->
         <button type="submit" class="btn btn-success w-100">Registrarse</button>
-      </form>
+    </form>
 
-      <!-- Enlace a login -->
       <div class="text-center mt-3">
         <small>¿Ya tienes cuenta? <a href="login.html">Inicia Sesión</a></small>
       </div>
+      
     </div>
   </div>
 

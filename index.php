@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+     header("Location: login.html");
+     exit();
+ }
+ ?>
+
 <html lang="en">
 
 <head>
@@ -35,8 +45,8 @@
                     <div class="btn-group">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Mi cuenta</button>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a href="login.html" class="nav-item nav-link active">Iniciar sesion</a>
-                            <a href="login.html" class="nav-item nav-link active">Registrarse</a>
+                            <a href="logout.php" class="nav-item nav-link active">Cerrar sesion</a>
+                            <a href="#" class="nav-item nav-link active">Mi cuenta</a>
                         </div>
                     </div>
                 </div>
@@ -101,7 +111,7 @@
                                 <div class="p-3" style="max-width: 700px;">
                                     <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown">Lo más relevante</h1>
                                     <p class="mx-md-5 px-5 animate__animated animate__bounceIn">Lorem rebum magna amet lorem magna erat diam stet. Sadips duo stet amet amet ndiam elitr ipsum diam</p>
-                                    <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="#">Shop Now</a>
+                                    <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="#">Ver más...</a>
                                 </div>
                             </div>
                         </div>
@@ -111,7 +121,7 @@
                                 <div class="p-3" style="max-width: 700px;">
                                     <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown">Deportes</h1>
                                     <p class="mx-md-5 px-5 animate__animated animate__bounceIn">Lorem rebum magna amet lorem magna erat diam stet. Sadips duo stet amet amet ndiam elitr ipsum diam</p>
-                                    <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="#">Shop Now</a>
+                                    <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="#">Ver más...</a>
                                 </div>
                             </div>
                         </div>
@@ -121,7 +131,7 @@
                                 <div class="p-3" style="max-width: 700px;">
                                     <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown">Clima</h1>
                                     <p class="mx-md-5 px-5 animate__animated animate__bounceIn">Lorem rebum magna amet lorem magna erat diam stet. Sadips duo stet amet amet ndiam elitr ipsum diam</p>
-                                    <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="#">Shop Now</a>
+                                    <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="#">Ver más...</a>
                                 </div>
                             </div>
                         </div>
@@ -147,7 +157,38 @@
                 </div>
             </div>
         </div>
-    </div>            
+    </div> 
+
+    <div class="container mt-4">
+        <div class="row">
+            <?php
+            include("conexion.php");
+            
+            $sql = "SELECT n.new_name, n.author 
+                    FROM news n
+                    ORDER BY n.creation_new DESC";
+            $result = $conn->query($sql);
+
+            if($result->num_rows > 0){
+                while($row = $result->fetch_assoc()){
+                    ?>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo htmlspecialchars($row['new_name']); ?></h5>
+                                <p class="card-text text-muted">Autor: <?php echo htmlspecialchars($row['author']); ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php
+                }
+            } else {
+                echo "<div class='col-12'><p>No hay noticias disponibles.</p></div>";
+            }
+            ?>
+        </div>
+    </div>
+
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-secondary mt-5 pt-5">        
@@ -167,29 +208,91 @@
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
 
-
-    <!-- Modal de búsqueda -->
+    
+    
+<!-- Modal de búsqueda avanzada -->
     <div class="modal fade" id="modalBusqueda" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
 
-          <div class="modal-header">
-            <h5 class="modal-title">Buscar Noticias</h5>
+        <div class="modal-header">
+            <h5 class="modal-title">Filtrar Noticias</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-              <span aria-hidden="true">&times;</span>
+            <span aria-hidden="true">&times;</span>
             </button>
-          </div>
-
-          <div class="modal-body">
-            <input type="text" id="inputBusqueda" class="form-control" placeholder="Escribe para filtrar...">
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-          </div>
         </div>
-      </div>
+
+        <div class="modal-body">
+            <form id="formBusqueda" method="GET" action="index.php">            
+
+            <div class="form-group">
+                <input type="text" name="search" class="form-control" placeholder="Escribe para filtrar...">
+            </div>
+             
+            <div class="form-group">
+                <h5 class="modal-title">Filtros</h5>
+                <label for="category_id">Categoría:</label>
+                <select name="category_id" class="form-control">
+                <option value="">-- Todas las categorías --</option>
+                <?php
+                include("conexion.php");
+                $query = $conn->query("
+                    SELECT DISTINCT c.category_id, c.category_name 
+                    FROM category c
+                    INNER JOIN news n ON n.category_id = c.category_id
+                    ORDER BY c.category_name ASC
+                ");
+                while ($row = $query->fetch_assoc()) {
+                    echo "<option value='".$row['category_id']."'>".$row['category_name']."</option>";
+                }
+                ?>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label for="author">Autor:</label>
+                    <input type="text" name="author" class="form-control" placeholder="Nombre del autor">
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label for="keyword">Palabra clave:</label>
+                    <input type="text" name="keyword" class="form-control" placeholder="Palabra clave de la noticia">
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label for="start_date">Fecha inicio:</label>
+                    <input type="date" name="start_date" class="form-control">
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label for="end_date">Fecha fin:</label>
+                    <input type="date" name="end_date" class="form-control">
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label for="media">Medio:</label>
+                    <input type="text" name="media" class="form-control" placeholder="Medio por el que se comparte">
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label for="type_note">Tipo de nota:</label>
+                    <input type="text" name="type_note" class="form-control" placeholder="Tipo de nota">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Aplicar filtros</button>
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+
+        </div>
     </div>
+    </div>
+
 
 
     <!-- JavaScript Libraries -->
@@ -207,23 +310,30 @@
 
     <!-- Script de búsqueda -->
     <script>
-      function filtrarNoticias() {
-        let filtro = document.getElementById("inputBusqueda").value.toLowerCase();
-        let noticias = document.querySelectorAll(".carousel-item, .product-offer");
+        function filtrarNoticias() {
+            let textoFiltro = document.getElementById("inputBusqueda").value.toLowerCase();
+            let categoriaFiltro = document.getElementById("categoriaBusqueda").value.toLowerCase();
+            let noticias = document.querySelectorAll(".carousel-item, .product-offer");
 
-        noticias.forEach(noticia => {
-          let texto = noticia.textContent.toLowerCase();
-          noticia.style.display = texto.includes(filtro) ? "block" : "none";
+            noticias.forEach(noticia => {
+            let texto = noticia.textContent.toLowerCase();
+            let coincideTexto = texto.includes(textoFiltro);
+            let coincideCategoria = categoriaFiltro === "" || texto.includes(categoriaFiltro);
+
+            noticia.style.display = (coincideTexto && coincideCategoria) ? "block" : "none";
+            });
+        }
+
+        document.getElementById("inputBusqueda").addEventListener("keyup", filtrarNoticias);
+        document.getElementById("categoriaBusqueda").addEventListener("change", filtrarNoticias);
+
+        $('#modalBusqueda').on('hidden.bs.modal', function () {
+            document.getElementById("inputBusqueda").value = "";
+            document.getElementById("categoriaBusqueda").value = "";
+            filtrarNoticias(); // restaurar
         });
-      }
-
-      document.getElementById("inputBusqueda").addEventListener("keyup", filtrarNoticias);
-
-      $('#modalBusqueda').on('hidden.bs.modal', function () {
-        document.getElementById("inputBusqueda").value = "";
-        filtrarNoticias(); // restaurar
-      });
     </script>
+
 </body>
 
 </html>
